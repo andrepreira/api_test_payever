@@ -1,0 +1,35 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongodb
+      - rabbitmq
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+      - MONGO_INITDB_DATABASE=development
+      - MONGO_URI=mongodb://root:root@mongo:27017/development
+    volumes:
+      - ./data/mongodb/mongod.conf:/etc/mongod.conf
+      - ./data/mongodb/initdb.d/:/docker-entrypoint-initdb.d/
+      - ./data/mongodb/data/db/:/data/db/
+  rabbitmq:
+    image: rabbitmq:3.7-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      - RABBITMQ_URI=amqp://rabbitmq:5672
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
